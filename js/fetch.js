@@ -1,3 +1,5 @@
+// All the fetch-functions needed in this app are here!
+
 async function fetchData(url){
     let promise = await fetch(url);
     let data = await promise.json();
@@ -23,7 +25,6 @@ async function postBid(id, data){
         'Content-Type': 'application/json'
       }
     }).then(function(data) {
-      console.log('Request success:');
       alert("Ditt bud är lagt");
       location.reload();
     });
@@ -38,7 +39,6 @@ async function postBid(id, data){
         'Content-Type': 'application/json'
       }
     }).then(function(data) {
-      console.log('Request success:');
       alert("Din auktion är inlagd");
       location.reload();
     });

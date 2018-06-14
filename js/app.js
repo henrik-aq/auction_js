@@ -50,6 +50,7 @@ async function sortByDate(){
     }
 }
 
+// Adds bid
 function addBid(auctionID){
     
     let bidAmount = document.getElementById("bid-field").value;
@@ -58,15 +59,41 @@ function addBid(auctionID){
 
 }
 
+//Adds an auction
 function addAuction(){
 
-    let title = "En tavla 1";
-    let content = "En jättefin tavla av en konstnär";
-    let start = "2018-01-01T02:00:00"
-    let end = "2019-01-01T02:00:00"
-    let price = 1000;
+    let title = document.getElementById("auction-title").value;
+    let content = document.getElementById("auction-content").value;
+    let start = document.getElementById("auction-start").value;
+    let end = document.getElementById("auction-end").value;
+    let price = document.getElementById("auction-price").value;
 
     let JSON = {"Titel": title, "Beskrivning": content, "StartDatum": start, "SlutDatum": end, "Gruppkod": 100, "Utropspris": price};
 
     postAuction(JSON);
 } 
+
+// This takes a search value (string) and compares it to the title and content
+// and if present - builds an auction. 
+async function Search(){
+
+    let searchStr = document.getElementById("search-text").value;
+    let dataSearch = await getAllAuctions();
+    
+    let element = document.getElementById("auction-row");
+
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+
+    for(i in dataSearch){
+        let title = dataSearch[i].Titel;
+        let content = dataSearch[i].Beskrivning;
+        
+        if(title.includes(searchStr) || content.includes(searchStr)){
+            buildAuction(dataSearch, i);
+        }
+    }
+
+}
+

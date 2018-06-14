@@ -1,3 +1,6 @@
+// All the createElement - appends and stuff for creating bid forms och auction forms are here
+// I also do some sorting and date comparing here when the funcions are called.
+
 // Function for presenting and sorting bids in descending order within bid modal
 async function buildBid(id){
 
@@ -28,38 +31,43 @@ async function buildBid(id){
         formElement.removeChild(formElement.firstChild);
     }
 
-            // Create bid input form
-            let div = document.createElement('SPAN');
-            div.setAttribute('class', 'form-group');
+        // Create bid input form
+        let div = document.createElement('SPAN');
+        div.setAttribute('class', 'form-group');
     
-            let label = document.createElement('LABEL');
-            let labelText = document.createTextNode('Ditt bud: ');
-            label.setAttribute('for', 'bid-field');
-            label.appendChild(labelText);
+        let label = document.createElement('LABEL');
+        let labelText = document.createTextNode('Ditt bud: ');
+        label.setAttribute('for', 'bid-field');
+        label.appendChild(labelText);
             
-            let input = document.createElement('INPUT');
-            input.setAttribute('type', 'text');
-            input.setAttribute('class', 'form-control');
-            input.setAttribute('id', 'bid-field');
-            input.setAttribute('name', 'Summa');
+        let input = document.createElement('INPUT');
+        input.setAttribute('type', 'text');
+        input.setAttribute('class', 'form-control');
+        input.setAttribute('id', 'bid-field');
+        input.setAttribute('name', 'Summa');
     
-            let button = document.createElement('BUTTON');
-            let buttonText = document.createTextNode('Skicka bud');
-            button.appendChild(buttonText);
-            button.setAttribute('type', 'submit');
-            button.setAttribute('class', 'btn btn-default');
-            button.setAttribute('onclick', 'addBid('+ id +')');
+        let button = document.createElement('BUTTON');
+        let buttonText = document.createTextNode('Skicka bud');
+        button.appendChild(buttonText);
+        button.setAttribute('type', 'submit');
+        button.setAttribute('class', 'btn btn-default');
+        button.setAttribute('onclick', 'addBid('+ id +')');
+
+        let parentDiv = document.getElementById('modal-form').appendChild(div);
     
-            let parentDiv = document.getElementById('modal-form').appendChild(div);
-    
-            parentDiv.appendChild(label);
-            parentDiv.appendChild(input);
-            parentDiv.appendChild(button);
+        parentDiv.appendChild(label);
+        parentDiv.appendChild(input);
+        parentDiv.appendChild(button);
 
 }
 
-// Function for presenting. Accepts api data and the position (i) in the loop
+// Function for presenting auctions. Accepts api data and the position (i) in the loop
 async function buildAuction(data, i){
+
+    let todayDateBuild = new Date();
+    let todayMilliBuild = Date.parse(todayDateBuild);
+    let startMilliBuild = Date.parse(data[i].StartDatum);
+    let endMilliBuild = Date.parse(data[i].SlutDatum);
 
     let div = document.createElement('DIV');
     div.setAttribute('class', 'thumbnail text-center');
@@ -83,7 +91,7 @@ async function buildAuction(data, i){
     let startPrice = document.createElement('H4');
     let startPriceText = document.createTextNode(data[i].Utropspris);
     startPrice.appendChild(startPriceText);
-            
+        
     let button = document.createElement('BUTTON');
     let buttonText = document.createTextNode('Se och lägg bud');
     button.appendChild(buttonText);
@@ -92,7 +100,7 @@ async function buildAuction(data, i){
     button.setAttribute('data-toggle', 'modal');
     button.setAttribute('data-target', '#bid-modal');
     button.setAttribute('onclick', 'buildBid(' + data[i].AuktionID + ');');
-
+    
     let parent = document.getElementById('auction-row').appendChild(div);
             
     parent.appendChild(title);
@@ -102,28 +110,19 @@ async function buildAuction(data, i){
     parent.appendChild(endDate);
     parent.appendChild(startPrice);
     parent.appendChild(document.createElement('HR'));
-    parent.appendChild(button);
+
+    // This tests if auction is current - if true it adds the bid-button.
+    // Else it adds text with the highest 
+    if (todayMilliBuild > startMilliBuild && todayMilliBuild < endMilliBuild){
+        parent.appendChild(button);
+        }
+    else {
+        let bidData = await getAllBids(data[i].AuktionID);
+        let highestBidSort = bidData.sort(function (a, b) {return b.Summa - a.Summa;});
+        let textNode = document.createElement('P');
+        let text = document.createTextNode('Det vinnande budet var på summan ' + highestBidSort[0].Summa);
+        textNode.appendChild(text);
+        parent.appendChild(textNode);
+    };
 
 }
-    /** 
-    const auctionHTML =
-        `<div class="col-md-4">
-            <h3 id="title">
-                ${data[i].Titel}
-            </h3>
-            <p id="auction-content">${data[i].Beskrivning}</p>
-
-            <hr>
-
-        
-            <p id="start-date">Startdatum: ${data[i].StartDatum}</p>
-            <p id="end-date">Slutdatum: ${data[i].SlutDatum}</p>
-            <h4 id="starting-price">Utropspris: ${data[i].Utropspris}</h4>
-
-            <hr>
-
-            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#bid-modal" onclick="buildBid(${data[i].AuktionID});">Se och lägg bud</button>
-
-        </div>`;
-    document.getElementById('auction-row').innerHTML = auktionHTML*/
-
